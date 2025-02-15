@@ -50,6 +50,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
 def extract_markdown_images(text):
     images_text = re.findall(r"!\[.*?\]\(http.*?\)",text)
+    if not images_text:
+        return None
     images = []
     for image in images_text:
         alt = re.findall(r"(?<=\[)(.*)(?=\])",image)
@@ -60,6 +62,8 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     links_text = re.findall(r"(?<!!)\[.*?\]\(http.*?\)",text)
+    if not links_text:
+        return None
     links = []
     for link in links_text:
         alt = re.findall(r"(?<=\[)(.*)(?=\])",link)
@@ -75,6 +79,9 @@ def split_nodes_image(old_nodes):
         text = node.text
         print(text)
         images = extract_markdown_images(text)
+        if not images:
+            new_nodes.append(node)
+            continue
         print(images)
         for image in images:
             parts = re.split(r"!\[.*?\]\(http.*?\)", text, maxsplit=1)
@@ -94,6 +101,9 @@ def split_nodes_link(old_nodes):
         text = node.text
         print(text)
         links = extract_markdown_links(text)
+        if not links:
+            new_nodes.append(node)
+            continue
         print(links)
         for link in links:
             parts = re.split(r"(?<!!)\[.*?\]\(http.*?\)", text, maxsplit=1)
@@ -105,6 +115,7 @@ def split_nodes_link(old_nodes):
         if text != "":
             new_nodes.append(TextNode(text, TextType.TEXT))
     return new_nodes
+
 
 def rec_node_list(text):
     parts = re.split(r"!\[.*?\]\(http.*?\)",text, maxsplit=1)
@@ -124,5 +135,20 @@ def rec_node_list(text):
 
 
 
-
+def text_to_textnodes(text):
+    print(text)
+    bold_nodes = split_nodes_delimiter([TextNode(text,TextType.TEXT)],"**",TextType.BOLD)
+    print("Bold nodes: ", bold_nodes)
+    bold_italic_nodes = split_nodes_delimiter(bold_nodes,"*",TextType.ITALIC)
+    print("bold and italic: ", bold_italic_nodes)
+    code_bold_italic_nodes = split_nodes_delimiter(bold_italic_nodes, "'",TextType.CODE)
+    print("code: ", code_bold_italic_nodes)
+    and_images = split_nodes_image(code_bold_italic_nodes)
+    print("images: ", and_images)
+    and_links = split_nodes_link(and_images)
+    print("links: ", and_links)
+    fully_formatted = and_links
+    print(fully_formatted)
+    return fully_formatted
+    
 

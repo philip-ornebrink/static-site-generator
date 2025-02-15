@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, rec_node_list, split_nodes_image, split_nodes_link
+from textnode import TextNode, TextType, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, rec_node_list, split_nodes_image, split_nodes_link, text_to_textnodes
 
 
 class TestTextNode(unittest.TestCase):
@@ -91,5 +91,24 @@ class TestSplitNodes2(unittest.TestCase):
         match = [TextNode("this is ", TextType.TEXT),TextNode("link1",TextType.LINKS,"https://link1.com"),TextNode(" and this is ",TextType.TEXT),TextNode("link2",TextType.LINKS,"https://link2.com"),TextNode("link3",TextType.LINKS,"https://link3.com"),TextNode(" is the best",TextType.TEXT)]
         self.assertEqual(nodes, match)
 
+
+
+class TestFormFullText(unittest.TestCase):
+
+    def testEasyStart(self):
+        text = "First a **fat words** and then *italic words* and a 'code page'. Lastly a ![image](https://image.com) and a [link](https://link.com). Hope this works"
+        nodes = text_to_textnodes(text)
+        match = [
+                TextNode("First a ", TextType.TEXT),
+                TextNode("fat words", TextType.BOLD),
+                TextNode(" and then ",TextType.TEXT),
+                TextNode("italic words", TextType.ITALIC),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("code page",TextType.CODE),
+                TextNode(". Lastly a ", TextType.TEXT),
+                TextNode("image", TextType.IMAGES, "https://image.com"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINKS, "https://link.com")
+        ]
 if __name__ == "__main__":
     unittest.main()

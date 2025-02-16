@@ -19,7 +19,7 @@ def block_to_blocktype(block):
     if all([line.startswith('>') for line in block.splitlines()]):
         return "quote"
 
-    if all([line.startswith('- ') for line in block.splitlines()]) or all([line.startswith('*') for line in block.splitlines()]):
+    if all([line.startswith('- ') for line in block.splitlines()]) or all([line.startswith('* ') for line in block.splitlines()]):
         return "unorderd list"
 
     if all([line.startswith(f'{index+1}. ') for index,line in enumerate(block.splitlines())]):
@@ -37,7 +37,7 @@ def text_to_children(text):
 
 
 def block_to_quote(block):
-    cleaned_block = block.replace(">", "")
+    cleaned_block = block.lstrip("> ")
     child_nodes = text_to_children(cleaned_block)
     blockNode = ParentNode("blockquote", child_nodes)
     return blockNode
@@ -46,9 +46,8 @@ def block_to_ul_list(block):
     lines = block.splitlines()
     list_items = []
     for line in lines:
-        line_1 = line.strip("- ")
-        line_2 = line_1.strip("* ")
-        child_nodes = text_to_children(line_2)
+        clean_line = re.sub(r"[\-\*]\s","", line)
+        child_nodes = text_to_children(clean_line)
         item_node = ParentNode("li", child_nodes)
         list_items.append(item_node)
     blockNode = ParentNode("ul", list_items)
@@ -119,5 +118,7 @@ def markdown_to_html_node(markdown):
     return page_node
 
         
-
-
+def extract_title(markdown):
+    title_1 = re.search(r"^\#{1} .*", markdown)
+    title_2 = title_1.group().strip("# ")
+    return title_2.strip()

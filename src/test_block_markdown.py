@@ -1,5 +1,5 @@
 import unittest
-from block_markdown import markdown_to_blocks, block_to_blocktype, markdown_to_html_node
+from block_markdown import markdown_to_blocks, block_to_blocktype, markdown_to_html_node, extract_title
 
 
 
@@ -83,3 +83,13 @@ class TestMarkdownToHtml(unittest.TestCase):
         html = markdown_to_html_node(markdown)
         match = "<div><ol><li>first item</li><li>second item</li></ol><p>This is a normal paragraph</p></div>"
         self.assertEqual(html.to_html(),match)
+
+
+class TestExtractHeader(unittest.TestCase):
+
+    def test_title_extraction(self):
+        markdown = "# best header "
+        title = extract_title(markdown)
+        match = "best header"
+        self.assertEqual(title, match)
+
